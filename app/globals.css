@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP",
+    Meiryo, sans-serif;
+}
+
+body {
+  background: #f8fafc;
+  color: #1e293b;
+  font-family: var(--font-sans);
+}
