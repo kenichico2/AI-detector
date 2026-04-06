@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI文章検出ツール
 
-## Getting Started
+学生のレポートを段落ごとに分析し、AIが生成した可能性のある部分を検出するツールです。Webアプリ（Next.js）とGoogle Colabノートブックの2つの実行方法を提供します。
 
-First, run the development server:
+---
+
+## Colabノートブック（Binoculars + 統計的手法 比較）
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kenichico2/AI-detector/blob/claude/ai-text-detector-fTEG9/notebooks/ai_detector_comparison.ipynb)
+
+上のボタンをクリックすると、Google Colab上でノートブックが開きます。
+
+- **Binoculars**（LLMベース）と**統計的手法**の2手法を段落ごとに比較
+- T4 GPU推奨（falcon-7b 4bit量子化）、GPU不足時はgpt2にフォールバック
+- 棒グラフ・散布図・色付き段落表示で結果を可視化
+
+### 使い方
+1. 上のバッジをクリック → Colabでノートブックが開く
+2. ランタイム → 「ランタイムのタイプを変更」→ GPU: T4 を選択
+3. `sample_text` にレポートのテキストを貼り付け
+4. 全セルを実行
+
+---
+
+## Webアプリ
+
+HuggingFace Inference API（RoBERTa）と統計的手法のハイブリッド判定を行うWebアプリです。APIキー不要・完全無料で動作します。
+
+### セットアップ
 
 ```bash
+npm install
+cp .env.local.example .env.local  # HF_API_TOKEN はオプション
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 にアクセスし、テキストを貼り付けて「分析する」をクリック。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Vercelデプロイ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. GitHubリポジトリをVercelにインポート
+2. 環境変数 `HF_API_TOKEN` を設定（オプション、レートリミット緩和）
+3. 自動デプロイ完了
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 検出手法
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 統計的手法（両ツール共通）
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| 指標 | AI的なテキストの特徴 |
+|---|---|
+| 文長均一性 | 文の長さのばらつきが小さい |
+| 語彙多様性 (TTR) | Type-Token Ratioが中程度（0.4〜0.6） |
+| 接続詞頻度 | 「また」「さらに」「したがって」等を多用 |
+| 句読点規則性 | 句読点の間隔が等間隔に近い |
 
-## Deploy on Vercel
+### Binoculars（Colabノートブック）
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+論文 "Spotting LLMs With Binoculars" に基づく手法。Observer（汎用LLM）とPerformer（instruction-tuned LLM）の2つのモデルのクロスエントロピー比率でAI生成テキストを検出。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### HuggingFace RoBERTa（Webアプリ）
+
+`openai-community/roberta-base-openai-detector` モデルをHuggingFace無料Inference API経由で使用。
+
+---
+
+## 判定基準
+
+| スコア | 判定 | 色 |
+|---|---|---|
+| 75%以上 | AIが生成した可能性が高い | 赤 |
+| 40〜75% | 判定が混在 | 黄 |
+| 40%未満 | 人間が書いた可能性が高い | 緑 |
+
+総合スコア = AIモデル (70%) + 統計的手法 (30%)
