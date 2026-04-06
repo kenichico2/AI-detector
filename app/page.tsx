@@ -13,7 +13,7 @@ export default function Home() {
   const [allParagraphs, setAllParagraphs] = useState<SplitParagraph[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasApiKey, setHasApiKey] = useState(true);
+  const [hasModel, setHasModel] = useState(true);
   const [analyzedCount, setAnalyzedCount] = useState(0);
 
   const handleSubmit = async (text: string) => {
@@ -52,9 +52,9 @@ export default function Home() {
       const data: DetectResponse = await res.json();
       setResults(data);
 
-      // APIキーの有無を判定（全段落でgptzeroがnullならキーなし）
-      const anyGptzero = data.paragraphs.some((p) => p.gptzeroProb !== null);
-      setHasApiKey(anyGptzero);
+      // AIモデルが動作したか判定
+      const anyModel = data.paragraphs.some((p) => p.aiModelProb !== null);
+      setHasModel(anyModel);
     } catch (err) {
       setError(
         err instanceof Error
@@ -85,7 +85,7 @@ export default function Home() {
           <ResultsDisplay
             response={results}
             allParagraphs={allParagraphs}
-            hasApiKey={hasApiKey}
+            hasModel={hasModel}
           />
         )}
       </div>

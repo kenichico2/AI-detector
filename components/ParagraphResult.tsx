@@ -33,8 +33,8 @@ export default function ParagraphResult({ result }: ParagraphResultProps) {
           <div className="flex-shrink-0 text-right">
             <div className={`text-2xl font-bold ${color.text}`}>{prob}%</div>
             <div className="text-xs text-slate-500 mt-1 space-y-0.5">
-              {result.gptzeroProb !== null && (
-                <div>API: {Math.round(result.gptzeroProb * 100)}%</div>
+              {result.aiModelProb !== null && (
+                <div>AI判定: {Math.round(result.aiModelProb * 100)}%</div>
               )}
               <div>統計: {Math.round(result.statisticalProb * 100)}%</div>
             </div>

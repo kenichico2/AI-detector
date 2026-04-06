@@ -3,10 +3,10 @@ import { classify, COLORS } from "@/lib/constants";
 
 interface OverallScoreProps {
   overall: OverallResult;
-  hasApiKey: boolean;
+  hasModel: boolean;
 }
 
-export default function OverallScore({ overall, hasApiKey }: OverallScoreProps) {
+export default function OverallScore({ overall, hasModel }: OverallScoreProps) {
   const prob = Math.round(overall.averageGeneratedProb * 100);
   const cls = classify(overall.averageGeneratedProb);
   const color = COLORS[cls];
@@ -73,9 +73,9 @@ export default function OverallScore({ overall, hasApiKey }: OverallScoreProps) 
       {/* 分析手法の表示 */}
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-xs text-slate-400">
-          {hasApiKey
-            ? "判定方式: GPTZero API（70%）+ 統計的手法（30%）"
-            : "判定方式: 統計的手法のみ（GPTZero APIキー未設定）"}
+          {hasModel
+            ? "判定方式: AIモデル（RoBERTa, 70%）+ 統計的手法（30%）"
+            : "判定方式: 統計的手法のみ（AIモデル接続エラー）"}
         </p>
       </div>
     </div>

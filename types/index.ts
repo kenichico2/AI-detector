@@ -21,7 +21,7 @@ export interface ParagraphResultItem {
   index: number;
   text: string;
   generatedProb: number;
-  gptzeroProb: number | null;
+  aiModelProb: number | null;
   statisticalProb: number;
   classification: Classification;
   skipped: boolean;
@@ -29,25 +29,6 @@ export interface ParagraphResultItem {
 }
 
 export type Classification = "human" | "mixed" | "ai" | "skipped";
-
-/** GPTZero API のレスポンス型 */
-export interface GPTZeroResponse {
-  documents: Array<{
-    average_generated_prob: number;
-    completely_generated_prob: number;
-    overall_burstiness: number;
-    paragraphs: Array<{
-      completely_generated_prob: number;
-      num_sentences: number;
-      start_sentence_index: number;
-    }>;
-    sentences: Array<{
-      generated_prob: number;
-      perplexity: number;
-      sentence: string;
-    }>;
-  }>;
-}
 
 /** 統計分析の結果 */
 export interface StatisticalResult {

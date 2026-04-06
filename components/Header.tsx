@@ -6,7 +6,7 @@ export default function Header() {
         学生のレポートを貼り付けて、AIが生成した可能性のある部分を段落ごとに検出します。
         <br />
         <span className="text-sm text-slate-500">
-          GPTZero API と統計的手法のハイブリッド判定
+          AIモデル（RoBERTa）と統計的手法のハイブリッド判定 ― 完全無料
         </span>
       </p>
     </header>

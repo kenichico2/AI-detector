@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeWithGPTZero } from "@/lib/gptzero";
+import { analyzeWithHuggingFace } from "@/lib/huggingface";
 import { analyzeStatistically } from "@/lib/statisticalAnalysis";
 import { classify, WEIGHTS } from "@/lib/constants";
 import type {
@@ -11,21 +11,21 @@ import type {
 
 const MAX_PARAGRAPHS = 50;
 const MAX_TOTAL_LENGTH = 50_000;
-const CONCURRENCY_LIMIT = 3;
+const CONCURRENCY_LIMIT = 2;
 
 /** 並列数を制限して処理する */
 async function processWithLimit<T, R>(
   items: T[],
   limit: number,
-  fn: (item: T) => Promise<R>
+  fn: (item: T, index: number) => Promise<R>
 ): Promise<R[]> {
   const results: R[] = new Array(items.length);
-  let index = 0;
+  let nextIndex = 0;
 
   async function worker() {
-    while (index < items.length) {
-      const i = index++;
-      results[i] = await fn(items[i]);
+    while (nextIndex < items.length) {
+      const i = nextIndex++;
+      results[i] = await fn(items[i], i);
     }
   }
 
@@ -64,30 +64,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hasApiKey = !!process.env.GPTZERO_API_KEY;
-
     const results: ParagraphResultItem[] = await processWithLimit(
       paragraphs,
       CONCURRENCY_LIMIT,
-      async (text: string): Promise<ParagraphResultItem> => {
-        const index = paragraphs.indexOf(text);
-
+      async (text: string, index: number): Promise<ParagraphResultItem> => {
         // 統計分析（常に実行）
         const stats = analyzeStatistically(text);
 
-        // GPTZero 分析（APIキーがある場合のみ）
-        let gptzeroProb: number | null = null;
+        // HuggingFace AI モデル分析（無料）
+        let aiModelProb: number | null = null;
         try {
-          gptzeroProb = await analyzeWithGPTZero(text);
+          aiModelProb = await analyzeWithHuggingFace(text);
         } catch {
-          // GPTZero エラーは無視して統計のみで判定
+          // HuggingFace エラーは無視して統計のみで判定
         }
 
         // 総合スコア算出
         let generatedProb: number;
-        if (gptzeroProb !== null) {
+        if (aiModelProb !== null) {
           generatedProb =
-            gptzeroProb * WEIGHTS.GPTZERO +
+            aiModelProb * WEIGHTS.AI_MODEL +
             stats.overallScore * WEIGHTS.STATISTICAL;
         } else {
           generatedProb = stats.overallScore;
@@ -97,18 +93,13 @@ export async function POST(request: NextRequest) {
           index,
           text,
           generatedProb,
-          gptzeroProb,
+          aiModelProb,
           statisticalProb: stats.overallScore,
           classification: classify(generatedProb),
           skipped: false,
         };
       }
     );
-
-    // インデックスを修正（indexOf の重複問題を回避）
-    results.forEach((r, i) => {
-      r.index = i;
-    });
 
     // 全体スコア算出
     const overall: OverallResult = {

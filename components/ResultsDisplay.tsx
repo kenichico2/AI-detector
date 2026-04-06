@@ -7,20 +7,19 @@ import { COLORS, LABELS } from "@/lib/constants";
 interface ResultsDisplayProps {
   response: DetectResponse;
   allParagraphs: SplitParagraph[];
-  hasApiKey: boolean;
+  hasModel: boolean;
 }
 
 export default function ResultsDisplay({
   response,
   allParagraphs,
-  hasApiKey,
+  hasModel,
 }: ResultsDisplayProps) {
-  // 分析結果と skipped 段落を統合して元の順序で表示
   let analyzedIndex = 0;
 
   return (
     <div className="space-y-6">
-      <OverallScore overall={response.overall} hasApiKey={hasApiKey} />
+      <OverallScore overall={response.overall} hasModel={hasModel} />
 
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-slate-500">
@@ -28,7 +27,6 @@ export default function ResultsDisplay({
         </h3>
         {allParagraphs.map((para) => {
           if (para.skipped) {
-            // スキップされた段落
             const color = COLORS.skipped;
             return (
               <div
@@ -52,7 +50,6 @@ export default function ResultsDisplay({
             );
           }
 
-          // 分析された段落
           const result = response.paragraphs[analyzedIndex];
           analyzedIndex++;
           if (!result) return null;

@@ -13,9 +13,9 @@ export function classify(prob: number): Classification {
   return "human";
 }
 
-/** GPTZero と統計の重み */
+/** HuggingFace AIモデルと統計の重み */
 export const WEIGHTS = {
-  GPTZERO: 0.7,
+  AI_MODEL: 0.7,
   STATISTICAL: 0.3,
 } as const;
 
