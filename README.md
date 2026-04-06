@@ -6,7 +6,7 @@
 
 ## Colabノートブック（Binoculars + 統計的手法 比較）
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kenichico2/AI-detector/blob/claude/ai-text-detector-fTEG9/notebooks/ai_detector_comparison.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kenichico2/AI-detector/blob/main/notebooks/ai_detector_comparison.ipynb)
 
 上のボタンをクリックすると、Google Colab上でノートブックが開きます。
 
